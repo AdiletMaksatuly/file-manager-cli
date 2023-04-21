@@ -43,6 +43,8 @@ class FileManager {
                 const errorMessage = this.getErrorMessage() + ': ' + error.message;
 
                 this.print(errorMessage);
+            } finally {
+                this.printCurrentDir();
             }
         });
 
@@ -90,10 +92,7 @@ class FileManager {
             case CLI_COMMANDS.CHANGE_DIR:
                 const pathToDest = args.join('');
 
-                return this.navigationService.changeDirectory(pathToDest)
-                    .then(() => {
-                        this.printCurrentDir();
-                    });
+                return this.navigationService.changeDirectory(pathToDest);
             case CLI_COMMANDS.READ:
                 return this.fileService.readFile();
             case CLI_COMMANDS.CREATE:
