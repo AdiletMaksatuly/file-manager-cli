@@ -8,7 +8,9 @@ export class NavigationService {
     constructor() {
     }
     goUpper() {
-        return 'goUpper';
+        if (this.currentDir === os.homedir()) return;
+
+        this.currentDir = path.resolve(this.currentDir, '..');
     }
     async changeDirectory(pathToDest) {
         const normalizedPath = path.normalize(pathToDest);
