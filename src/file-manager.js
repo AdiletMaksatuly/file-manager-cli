@@ -48,9 +48,9 @@ class FileManager {
             }
         });
 
-        process.on('SIGINT', this.onExitHandler);
+        process.on('SIGINT', this.exitProcess);
 
-        process.stdin.on('close', this.onExitHandler);
+        process.stdin.on('close', this.exitProcess);
     }
 
     printUserGreeting = () => {
@@ -69,12 +69,9 @@ class FileManager {
         return this.messageService.getErrorMessage();
     }
 
-    onExitHandler = async () => {
-        const command = CLI_COMMANDS.EXIT;
-        const output = await this.processCommand(command);
-
-        this.print(output)
-        process.exit(0)
+    exitProcess = () => {
+        this.print(this.getExitMessage())
+        process.exit(0);
     }
 
     print = (message) => {
@@ -122,7 +119,7 @@ class FileManager {
             case CLI_COMMANDS.DECOMPRESS:
                 return this.compressionService.decompress();
             case CLI_COMMANDS.EXIT:
-                return this.getExitMessage();
+                return this.exitProcess();
             default:
                 return this.getErrorMessage();
         }
