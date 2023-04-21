@@ -1,12 +1,13 @@
 class MessageService {
     username = '';
 
+
     constructor(username = 'User') {
         this.username = username;
     }
 
     getGreetingMessage() {
-        return `Welcome to the File Manager, ${this.username}!\n`;
+        return `Welcome to the File Manager, ${this.username}!`;
     }
 
     getExitMessage() {
