@@ -13,6 +13,10 @@ class MessageService {
     getExitMessage() {
         return `Thank you for using File Manager, ${this.username}, goodbye!`;
     }
+
+    getErrorMessage() {
+        return 'Invalid input';
+    }
 }
 
 export default MessageService;

@@ -1,11 +1,11 @@
 import MessageService from "./message.service.js";
-import {parseUsername} from "./utils/parse-username.util.js";
 import {CLI_COMMANDS} from "./consts/commands.const.js";
 import {OsService} from "./os.service.js";
 import {HashService} from "./hash.service.js";
 import {FileService} from "./file.service.js";
 import {CompressionService} from "./compression.service.js";
 import {NavigationService} from "./navigation.service.js";
+import ParseService from "./parse.service.js";
 
 class FileManager {
     parseService = new ParseService();
@@ -25,16 +25,24 @@ class FileManager {
     setListeners() {
         process.stdin.on('data', async (data) => {
             const command = data.toString().trim();
-            const output = await this.processCommand(command);
 
-            let outputToPrint = output;
+            try {
+                const output = await this.processCommand(command);
 
-            // if something is returned from the command, print it
-            if (outputToPrint) {
-                if (Array.isArray(output)) {
+                let outputToPrint = output;
+
+                // if something is returned from the command, print it
+                if (outputToPrint && Array.isArray(output)) {
                     outputToPrint = output.join('\n');
                 }
-                this.print(outputToPrint);
+
+                if (outputToPrint) {
+                    this.print(outputToPrint);
+                }
+            } catch (error) {
+                const errorMessage = this.getErrorMessage() + ': ' + error.message;
+
+                this.print(errorMessage);
             }
         });
 
@@ -55,17 +63,20 @@ class FileManager {
         return this.messageService.getExitMessage();
     }
 
-    onExitHandler = () => {
+    getErrorMessage = () => {
+        return this.messageService.getErrorMessage();
+    }
+
+    onExitHandler = async () => {
         const command = CLI_COMMANDS.EXIT;
-        const output = this.processCommand(command);
+        const output = await this.processCommand(command);
 
         this.print(output)
         process.exit(0)
     }
 
     print = (message) => {
-        // process.stdout.write(message + '\n');
-        console.log(message + '\n')
+        process.stdout.write(message + '\n');
     }
 
     async processCommand(commandWithArgs) {
@@ -114,7 +125,7 @@ class FileManager {
             case CLI_COMMANDS.EXIT:
                 return this.getExitMessage();
             default:
-                return 'Invalid input';
+                return this.getErrorMessage();
         }
     }
 }
