@@ -28,7 +28,6 @@ class FileManager {
 
             try {
                 const output = await this.processCommand(command);
-                this.printCurrentDir();
 
                 let outputToPrint = output;
 
@@ -47,9 +46,9 @@ class FileManager {
             }
         });
 
-        process.on('SIGINT', this.exitProcess);
+        process.on('SIGINT', this.onExitHandler);
 
-        process.stdin.on('close', this.exitProcess);
+        process.stdin.on('close', this.onExitHandler);
     }
 
     printUserGreeting = () => {
@@ -67,9 +66,13 @@ class FileManager {
     getErrorMessage = () => {
         return this.messageService.getErrorMessage();
     }
-    exitProcess = () => {
-        this.print(this.getExitMessage())
-        process.exit(0);
+
+    onExitHandler = async () => {
+        const command = CLI_COMMANDS.EXIT;
+        const output = await this.processCommand(command);
+
+        this.print(output)
+        process.exit(0)
     }
 
     print = (message) => {
@@ -87,7 +90,10 @@ class FileManager {
             case CLI_COMMANDS.CHANGE_DIR:
                 const pathToDest = args.join('');
 
-                return this.navigationService.changeDirectory(pathToDest);
+                return this.navigationService.changeDirectory(pathToDest)
+                    .then(() => {
+                        this.printCurrentDir();
+                    });
             case CLI_COMMANDS.READ:
                 return this.fileService.readFile();
             case CLI_COMMANDS.CREATE:
@@ -117,7 +123,7 @@ class FileManager {
             case CLI_COMMANDS.DECOMPRESS:
                 return this.compressionService.decompress();
             case CLI_COMMANDS.EXIT:
-                return this.exitProcess();
+                return this.getExitMessage();
             default:
                 return this.getErrorMessage();
         }
