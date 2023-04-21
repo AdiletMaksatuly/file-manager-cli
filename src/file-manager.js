@@ -68,14 +68,21 @@ class FileManager {
         console.log(message + '\n')
     }
 
-    async processCommand(command) {
+    async processCommand(commandWithArgs) {
+        const { command, args } = this.parseService.parseCommand(commandWithArgs);
+
         switch (command) {
             case CLI_COMMANDS.UP:
                 return this.navigationService.goUpper();
             case CLI_COMMANDS.LIST:
                 return this.navigationService.listFiles();
             case CLI_COMMANDS.CHANGE_DIR:
-                return this.navigationService.changeDirectory();
+                const pathToDest = args.join('');
+
+                return this.navigationService.changeDirectory(pathToDest)
+                    .then(() => {
+                        this.printCurrentDir();
+                    });
             case CLI_COMMANDS.READ:
                 return this.fileService.readFile();
             case CLI_COMMANDS.CREATE:
