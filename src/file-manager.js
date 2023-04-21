@@ -8,7 +8,8 @@ import {CompressionService} from "./compression.service.js";
 import {NavigationService} from "./navigation.service.js";
 
 class FileManager {
-    messageService = new MessageService(parseUsername(process.argv));
+    parseService = new ParseService();
+    messageService = new MessageService(this.parseService.parseUsername(process.argv));
     navigationService = new NavigationService();
     fileService = new FileService();
     hashService = new HashService();
