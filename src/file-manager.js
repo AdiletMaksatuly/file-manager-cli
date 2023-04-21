@@ -7,8 +7,6 @@ import {FileService} from "./file.service.js";
 import {CompressionService} from "./compression.service.js";
 import {NavigationService} from "./navigation.service.js";
 
-import cp from "child_process";
-
 class FileManager {
     messageService = new MessageService(parseUsername(process.argv));
     navigationService = new NavigationService();
@@ -24,11 +22,19 @@ class FileManager {
     }
 
     setListeners() {
-        process.stdin.on('data', (data) => {
+        process.stdin.on('data', async (data) => {
             const command = data.toString().trim();
-            const output = this.processCommand(command);
+            const output = await this.processCommand(command);
 
-            this.print(output)
+            let outputToPrint = output;
+
+            // if something is returned from the command, print it
+            if (outputToPrint) {
+                if (Array.isArray(output)) {
+                    outputToPrint = output.join('\n');
+                }
+                this.print(outputToPrint);
+            }
         });
 
         process.on('SIGINT', this.onExitHandler);
@@ -57,10 +63,11 @@ class FileManager {
     }
 
     print = (message) => {
-        process.stdout.write(message + '\n');
+        // process.stdout.write(message + '\n');
+        console.log(message + '\n')
     }
 
-    processCommand(command) {
+    async processCommand(command) {
         switch (command) {
             case CLI_COMMANDS.UP:
                 return this.navigationService.goUpper();
