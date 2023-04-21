@@ -1,4 +1,8 @@
+import os from "os";
+
 export class NavigationService {
+    currentDir = os.homedir();
+
     constructor() {
     }
     goUpper() {

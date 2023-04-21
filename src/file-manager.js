@@ -7,6 +7,8 @@ import {FileService} from "./file.service.js";
 import {CompressionService} from "./compression.service.js";
 import {NavigationService} from "./navigation.service.js";
 
+import cp from "child_process";
+
 class FileManager {
     messageService = new MessageService(parseUsername(process.argv));
     navigationService = new NavigationService();
@@ -16,12 +18,12 @@ class FileManager {
     compressionService = new CompressionService();
 
     constructor() {
-
-
-        this.init();
+        this.setListeners();
+        this.printUserGreeting();
+        this.printCurrentDir();
     }
 
-    init() {
+    setListeners() {
         process.stdin.on('data', (data) => {
             const command = data.toString().trim();
             const output = this.processCommand(command);
@@ -32,16 +34,13 @@ class FileManager {
         process.on('SIGINT', this.onExitHandler);
 
         process.stdin.on('close', this.onExitHandler);
-
-        this.printUserGreeting();
-        this.printCurrentDir()
     }
 
     printUserGreeting = () => {
         this.print(this.messageService.getGreetingMessage());
     }
     printCurrentDir = () => {
-        const message = `You are currently in ${process.cwd()}`
+        const message = `You are currently in ${this.navigationService.currentDir}`
         this.print(message);
     }
 
@@ -50,7 +49,7 @@ class FileManager {
     }
 
     onExitHandler = () => {
-        const command = '.exit';
+        const command = CLI_COMMANDS.EXIT;
         const output = this.processCommand(command);
 
         this.print(output)
