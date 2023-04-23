@@ -126,7 +126,9 @@ class FileManager {
 
                 return this.fileService.copyFile(sourceFilePath, destFileDir);
             case CLI_COMMANDS.MOVE:
-                return this.fileService.moveFile();
+                const [sourcePath, destPath] = args;
+
+                return this.fileService.moveFile(sourcePath, destPath);
             case CLI_COMMANDS.DELETE:
                 return this.fileService.deleteFile();
             case CLI_COMMANDS.EOL:

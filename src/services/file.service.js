@@ -35,7 +35,7 @@ export class FileService {
                 let content = '';
 
                 stream.on("data", (data) => content += data.toString());
-                stream.on('error', (error) => reject(ERROR_MESSAGES.OPERATION_FAILED));
+                stream.on('error', () => reject(ERROR_MESSAGES.OPERATION_FAILED));
                 stream.on('end', () => resolve(content));
             });
 
@@ -98,11 +98,9 @@ export class FileService {
         const absoluteSrcPath = path.resolve(currentDir, normalizedSrcPath);
 
         const normalizedDestPath = path.normalize(destFileDir);
-
         let absoluteDestPath = path.resolve(currentDir, normalizedDestPath);
 
         const isSameDirectory = path.dirname(absoluteSrcPath) === absoluteDestPath;
-
         if (isSameDirectory) {
             const copiedFileName = normalizedDestPath + '/' + path.parse(absoluteSrcPath).name + '.copy' + path.extname(absoluteSrcPath);
 
@@ -126,10 +124,7 @@ export class FileService {
                 const destWritableStream = fs.createWriteStream(absoluteDestPath);
 
                 sourceReadableStream.on('error', (error) => reject(error));
-                destWritableStream.on('error', (error) => {
-                    console.log(error)
-                    reject(error)
-                });
+                destWritableStream.on('error', (error) => reject(error));
                 destWritableStream.on('finish', () => resolve());
 
                 sourceReadableStream.pipe(destWritableStream);
@@ -141,8 +136,48 @@ export class FileService {
         }
     }
 
-    moveFile() {
-        return 'moveFile';
+    async moveFile(sourceFilePath, destDir) {
+        const currentDir = this.getCurrentDir();
+
+        const normalizedSrcPath = path.normalize(sourceFilePath);
+        const absoluteSrcPath = path.resolve(currentDir, normalizedSrcPath);
+
+        const normalizedDestPath = path.normalize(destDir);
+        const absoluteDestPath = path.resolve(currentDir, normalizedDestPath);
+
+        try {
+            const isDestDirCorrect = (await fsPromises.stat(absoluteDestPath)).isDirectory();
+
+            if (!isDestDirCorrect) throw new Error('Destination is not a directory');
+
+            await fsPromises.access(absoluteSrcPath);
+            await fsPromises.access(absoluteDestPath);
+        } catch (error) {
+            return ERROR_MESSAGES.INVALID_INPUT;
+        }
+
+        try {
+            const moveFileProcess = new Promise((resolve, reject) => {
+                let absoluteDestPath = path.resolve(currentDir, normalizedDestPath, path.basename(absoluteSrcPath));
+
+                const sourceReadableStream = fs.createReadStream(absoluteSrcPath);
+                const destWritableStream = fs.createWriteStream(absoluteDestPath);
+
+                sourceReadableStream.on('error', (error) => reject(error));
+                destWritableStream.on('error', (error) => reject(error));
+                destWritableStream.on('finish', async () => {
+                    await fsPromises.unlink(absoluteSrcPath);
+
+                    resolve();
+                });
+
+                sourceReadableStream.pipe(destWritableStream);
+            });
+
+            return await moveFileProcess;
+        } catch (error) {
+            return ERROR_MESSAGES.OPERATION_FAILED;
+        }
     }
 
     deleteFile() {
