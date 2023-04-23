@@ -2,6 +2,7 @@ import os from "os";
 import fsPromises from "fs/promises";
 import {sortStringAlphabetically} from "../utils/alphabet-sort.util.js";
 import path from 'path';
+import {ERROR_MESSAGES} from "../consts/errors.const.js";
 
 export class NavigationService {
     getCurrentDir;
@@ -33,7 +34,7 @@ export class NavigationService {
 
             this.setCurrentDir(absolutePath);
         } catch (error) {
-            throw new Error('Directory does not exist');
+            return ERROR_MESSAGES.INVALID_INPUT;
         }
     }
     async listFiles() {
