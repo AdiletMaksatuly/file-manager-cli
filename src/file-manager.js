@@ -1,22 +1,38 @@
-import MessageService from "./message.service.js";
+import MessageService from "./services/message.service.js";
 import {CLI_COMMANDS} from "./consts/commands.const.js";
-import {OsService} from "./os.service.js";
-import {HashService} from "./hash.service.js";
-import {FileService} from "./file.service.js";
-import {CompressionService} from "./compression.service.js";
-import {NavigationService} from "./navigation.service.js";
-import ParseService from "./parse.service.js";
+import {OsService} from "./services/os.service.js";
+import {HashService} from "./services/hash.service.js";
+import {FileService} from "./services/file.service.js";
+import {CompressionService} from "./services/compression.service.js";
+import {NavigationService} from "./services/navigation.service.js";
+import ParseService from "./services/parse.service.js";
+import CurrentDirectoryService from "./services/current-directory.service.js";
 
 class FileManager {
     parseService = new ParseService();
-    messageService = new MessageService(this.parseService.parseUsername(process.argv));
-    navigationService = new NavigationService();
-    fileService = new FileService();
-    hashService = new HashService();
-    osService = new OsService();
-    compressionService = new CompressionService();
+    currentDirService = new CurrentDirectoryService();
+    messageService;
+    navigationService;
+    fileService;
+    hashService;
+    osService;
+    compressionService;
 
     constructor() {
+        const username = this.parseService.parseUsername(process.argv);
+        this.messageService = new MessageService(username);
+
+        const currentDirMethods = {
+            getCurrentDir: this.currentDirService.getCurrentDir.bind(this.currentDirService),
+            setCurrentDir: this.currentDirService.setCurrentDir.bind(this.currentDirService),
+        }
+
+        this.navigationService = new NavigationService(currentDirMethods);
+        this.fileService = new FileService();
+        this.hashService = new HashService();
+        this.osService = new OsService();
+        this.compressionService = new CompressionService();
+
         this.setListeners();
         this.printUserGreeting();
         this.printCurrentDir();
@@ -56,8 +72,9 @@ class FileManager {
     printUserGreeting = () => {
         this.print(this.messageService.getGreetingMessage());
     }
+
     printCurrentDir = () => {
-        const message = `You are currently in ${this.navigationService.currentDir}`
+        const message = `You are currently in ${this.currentDirService.getCurrentDir()}`
         this.print(message);
     }
 
