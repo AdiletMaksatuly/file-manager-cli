@@ -34,15 +34,9 @@ export class FileService {
 
                 let content = '';
 
-                stream.on("data", (data) => {
-                    content += data.toString();
-                });
-                stream.on('error', (error) => {
-                    reject(ERROR_MESSAGES.OPERATION_FAILED);
-                });
-                stream.on('end', () => {
-                    resolve(content);
-                });
+                stream.on("data", (data) => content += data.toString());
+                stream.on('error', (error) => reject(ERROR_MESSAGES.OPERATION_FAILED));
+                stream.on('end', () => resolve(content));
             });
 
             return await fileContent;
@@ -104,8 +98,18 @@ export class FileService {
         const absoluteSrcPath = path.resolve(currentDir, normalizedSrcPath);
 
         const normalizedDestPath = path.normalize(destFileDir);
-        const copiedFileName = normalizedDestPath + '/' + path.parse(absoluteSrcPath).name + '.copy' + path.extname(absoluteSrcPath);
-        const absoluteDestPath = path.resolve(currentDir, copiedFileName);
+
+        let absoluteDestPath = path.resolve(currentDir, normalizedDestPath);
+
+        const isSameDirectory = path.dirname(absoluteSrcPath) === absoluteDestPath;
+
+        if (isSameDirectory) {
+            const copiedFileName = normalizedDestPath + '/' + path.parse(absoluteSrcPath).name + '.copy' + path.extname(absoluteSrcPath);
+
+            absoluteDestPath = path.resolve(currentDir, copiedFileName);
+        } else {
+            absoluteDestPath = path.resolve(currentDir, normalizedDestPath, path.basename(absoluteSrcPath));
+        }
 
         try {
             const absoluteDestPathDir = path.dirname(absoluteDestPath);
@@ -122,11 +126,13 @@ export class FileService {
                 const destWritableStream = fs.createWriteStream(absoluteDestPath);
 
                 sourceReadableStream.on('error', (error) => reject(error));
-                destWritableStream.on('error', (error) => reject(error));
+                destWritableStream.on('error', (error) => {
+                    console.log(error)
+                    reject(error)
+                });
+                destWritableStream.on('finish', () => resolve());
 
                 sourceReadableStream.pipe(destWritableStream);
-
-                destWritableStream.on('finish', () => resolve());
             });
 
             return await copyFileProcess;
