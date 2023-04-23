@@ -97,7 +97,6 @@ class FileManager {
 
     async processCommand(commandWithArgs) {
         const { command, args } = this.parseService.parseCommand(commandWithArgs);
-        const commandArgs = args.join(' ');
 
         switch (command) {
             case CLI_COMMANDS.UP:
@@ -105,13 +104,21 @@ class FileManager {
             case CLI_COMMANDS.LIST:
                 return this.navigationService.listFiles();
             case CLI_COMMANDS.CHANGE_DIR:
-                return this.navigationService.changeDirectory(commandArgs);
+                const pathToDir = args.join('');
+
+                return this.navigationService.changeDirectory(pathToDir);
             case CLI_COMMANDS.READ:
-                return this.fileService.readFile(commandArgs);
+                const pathToFile = args.join('');
+
+                return this.fileService.readFile(pathToFile);
             case CLI_COMMANDS.CREATE:
-                return this.fileService.createFile(commandArgs);
+                const fileName = args.join('');
+
+                return this.fileService.createFile(fileName);
             case CLI_COMMANDS.RENAME:
-                return this.fileService.renameFile();
+                const [oldPath, newPath] = args;
+
+                return this.fileService.renameFile(oldPath, newPath);
             case CLI_COMMANDS.COPY:
                 return this.fileService.copyFile();
             case CLI_COMMANDS.MOVE:

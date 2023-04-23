@@ -64,8 +64,37 @@ export class FileService {
         }
     }
 
-    renameFile() {
-        return 'renameFile'
+    async renameFile(oldPath, newPath) {
+        const currentDir = this.getCurrentDir();
+
+        const normalizedSrcPath = path.normalize(oldPath);
+        const absoluteSrcPath = path.resolve(currentDir, normalizedSrcPath);
+
+        const normalizedDestPath = path.normalize(newPath);
+        const absoluteDestPath = path.resolve(currentDir, normalizedDestPath);
+
+        try {
+            const destPathSplit = path.resolve(currentDir, path.normalize(newPath)).split('/');
+            const newPathIsJustFileName = destPathSplit.length === 1;
+
+            if (!newPathIsJustFileName) {
+                // if newPath is not just a file name, we need to check if the directory exists of newFileName exists
+                // for example rn desktop/file.txt desktop/newFolder/file2.txt
+
+                const destPathWithoutFileName = destPathSplit.slice(0, -1).join('/');
+                await fsPromises.access(destPathWithoutFileName);
+            }
+
+            await fsPromises.access(absoluteSrcPath);
+        } catch (error) {
+            return ERROR_MESSAGES.INVALID_INPUT;
+        }
+
+        try {
+            return await fsPromises.rename(absoluteSrcPath, absoluteDestPath);
+        } catch (error) {
+            return ERROR_MESSAGES.OPERATION_FAILED;
+        }
     }
 
     copyFile() {
