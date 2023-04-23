@@ -1,5 +1,5 @@
 import os from 'os';
-import {CLI_COMMANDS, CLI_OS_COMMANDS} from "../consts/commands.const.js";
+import {CLI_OS_COMMANDS} from "../consts/commands.const.js";
 
 export class OsService {
     constructor(dirMethods) {
@@ -29,7 +29,15 @@ export class OsService {
     }
 
     getCPUs() {
-        return 'getCPUs';
+        const cpus = os.cpus();
+
+        return cpus.reduce((acc, cpu) => {
+            acc.push({
+                model: cpu.model,
+                GHz: (cpu.speed / 1000).toFixed(2)
+            });
+            return acc;
+        }, []);
     }
 
     getHomeDir() {

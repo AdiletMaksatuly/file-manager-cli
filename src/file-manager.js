@@ -49,8 +49,7 @@ class FileManager {
 
                 let outputToPrint = output;
 
-                // if something is returned from the command, print it
-                if (outputToPrint && Array.isArray(output)) {
+                if (outputToPrint && Array.isArray(output) && typeof output[0] === 'string') {
                     outputToPrint = output.join('\n');
                 }
 
@@ -94,7 +93,12 @@ class FileManager {
     }
 
     print = (message) => {
-        process.stdout.write(message + '\n');
+        if (typeof message === 'string') {
+            process.stdout.write(message + '\n');
+            return;
+        }
+
+        console.table(message);
     }
 
     async processCommand(commandWithArgs) {
