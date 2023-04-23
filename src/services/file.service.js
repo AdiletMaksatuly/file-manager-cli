@@ -1,4 +1,8 @@
+
 export class FileService {
+    constructor() {
+    }
+
     readFile() {
         return 'readFile'
     }

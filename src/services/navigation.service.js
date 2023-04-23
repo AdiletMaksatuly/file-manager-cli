@@ -1,31 +1,43 @@
 import os from "os";
 import fsPromises from "fs/promises";
-import {sortStringAlphabetically} from "./utils/alphabet-sort.util.js";
+import {sortStringAlphabetically} from "../utils/alphabet-sort.util.js";
 import path from 'path';
 
 export class NavigationService {
-    currentDir = os.homedir();
-    constructor() {
+    getCurrentDir;
+    setCurrentDir;
+
+    constructor(dirMethods) {
+        if (!dirMethods) {
+            throw new Error('NavigationService requires dirMethods object with getCurrentDir and setCurrentDir methods');
+        }
+
+        this.getCurrentDir = dirMethods.getCurrentDir;
+        this.setCurrentDir = dirMethods.setCurrentDir;
     }
     goUpper() {
-        if (this.currentDir === os.homedir()) return;
+        const currentDir = this.getCurrentDir();
 
-        this.currentDir = path.resolve(this.currentDir, '..');
+        if (currentDir === os.homedir()) return;
+
+        this.setCurrentDir(path.resolve(currentDir, '..'));
     }
     async changeDirectory(pathToDest) {
+        const currentDir = this.getCurrentDir();
+
         const normalizedPath = path.normalize(pathToDest);
-        const absolutePath = path.resolve(this.currentDir, normalizedPath);
+        const absolutePath = path.resolve(currentDir, normalizedPath);
 
         try {
             await fsPromises.access(absolutePath)
 
-            this.currentDir = absolutePath;
+            this.setCurrentDir(absolutePath);
         } catch (error) {
             throw new Error('Directory does not exist');
         }
     }
     async listFiles() {
-        const files = await fsPromises.readdir(this.currentDir, { withFileTypes: true });
+        const files = await fsPromises.readdir(this.getCurrentDir(), { withFileTypes: true });
 
         const normalizedFiles =
             [...files]
