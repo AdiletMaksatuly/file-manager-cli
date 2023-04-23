@@ -180,7 +180,22 @@ export class FileService {
         }
     }
 
-    deleteFile() {
-        return 'deleteFile'
+    async deleteFile(pathToFile) {
+        const currentDir = this.getCurrentDir();
+
+        const normalizedPath = path.normalize(pathToFile);
+        const absolutePath = path.resolve(currentDir, normalizedPath);
+
+        try {
+            await fsPromises.access(absolutePath);
+        } catch (error) {
+            return ERROR_MESSAGES.INVALID_INPUT;
+        }
+
+        try {
+            return await fsPromises.unlink(absolutePath);
+        } catch (error) {
+            return ERROR_MESSAGES.OPERATION_FAILED;
+        }
     }
 }

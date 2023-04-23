@@ -130,7 +130,9 @@ class FileManager {
 
                 return this.fileService.moveFile(sourcePath, destPath);
             case CLI_COMMANDS.DELETE:
-                return this.fileService.deleteFile();
+                const [fileToDelete] = args;
+
+                return this.fileService.deleteFile(fileToDelete);
             case CLI_COMMANDS.EOL:
                 return this.osService.getEOL();
             case CLI_COMMANDS.CPUS:
