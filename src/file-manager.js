@@ -133,16 +133,9 @@ class FileManager {
                 const [fileToDelete] = args;
 
                 return this.fileService.deleteFile(fileToDelete);
-            case CLI_COMMANDS.EOL:
-                return this.osService.getEOL();
-            case CLI_COMMANDS.CPUS:
-                return this.osService.getCPUs();
-            case CLI_COMMANDS.HOMEDIR:
-                return this.osService.getHomeDir();
-            case CLI_COMMANDS.SYS_USER:
-                return this.osService.getSysUser();
-            case CLI_COMMANDS.ARCH:
-                return this.osService.getArchitecture();
+            case CLI_COMMANDS.OS:
+                const [osCommand] = args;
+                return this.osService.processCommand(osCommand, () => this.getErrorMessage());
             case CLI_COMMANDS.HASH:
                 return this.hashService.calculateHash();
             case CLI_COMMANDS.COMPRESS:
@@ -152,6 +145,7 @@ class FileManager {
             case CLI_COMMANDS.EXIT:
                 return this.exitProcess();
             default:
+                console.log('default')
                 return this.getErrorMessage();
         }
     }
