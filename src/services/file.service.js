@@ -1,6 +1,6 @@
-import fsPromises from "fs/promises";
 import path from "path";
 import fs from "fs";
+import fsPromises from "fs/promises";
 import {ERROR_MESSAGES} from "../consts/errors.const.js";
 
 export class FileService {
@@ -51,8 +51,17 @@ export class FileService {
         }
     }
 
-    createFile() {
-        return 'createFile'
+    async createFile(fileName) {
+        const currentDir = this.getCurrentDir();
+
+        const normalizedPath = path.normalize(fileName);
+        const absolutePath = path.resolve(currentDir, normalizedPath);
+
+        try {
+            await fsPromises.writeFile(absolutePath, '');
+        } catch (error) {
+            return ERROR_MESSAGES.OPERATION_FAILED;
+        }
     }
 
     renameFile() {

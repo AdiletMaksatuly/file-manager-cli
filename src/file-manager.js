@@ -109,7 +109,7 @@ class FileManager {
             case CLI_COMMANDS.READ:
                 return this.fileService.readFile(commandArgs);
             case CLI_COMMANDS.CREATE:
-                return this.fileService.createFile();
+                return this.fileService.createFile(commandArgs);
             case CLI_COMMANDS.RENAME:
                 return this.fileService.renameFile();
             case CLI_COMMANDS.COPY:
