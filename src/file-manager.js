@@ -43,6 +43,8 @@ class FileManager {
             const command = data.toString().trim();
 
             try {
+                // TODO think about making processCommand a child process or readable stream
+                // TODO to be able to receive it's output by chunks if it's returning a results of streams
                 const output = await this.processCommand(command);
 
                 let outputToPrint = output;
@@ -120,7 +122,9 @@ class FileManager {
 
                 return this.fileService.renameFile(oldPath, newPath);
             case CLI_COMMANDS.COPY:
-                return this.fileService.copyFile();
+                const [sourceFilePath, destFileDir] = args;
+
+                return this.fileService.copyFile(sourceFilePath, destFileDir);
             case CLI_COMMANDS.MOVE:
                 return this.fileService.moveFile();
             case CLI_COMMANDS.DELETE:

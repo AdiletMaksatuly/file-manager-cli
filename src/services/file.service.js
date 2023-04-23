@@ -97,8 +97,42 @@ export class FileService {
         }
     }
 
-    copyFile() {
-        return 'copyFile'
+    async copyFile(sourceFilePath, destFileDir) {
+        const currentDir = this.getCurrentDir();
+
+        const normalizedSrcPath = path.normalize(sourceFilePath);
+        const absoluteSrcPath = path.resolve(currentDir, normalizedSrcPath);
+
+        const normalizedDestPath = path.normalize(destFileDir);
+        const copiedFileName = normalizedDestPath + '/' + path.parse(absoluteSrcPath).name + '.copy' + path.extname(absoluteSrcPath);
+        const absoluteDestPath = path.resolve(currentDir, copiedFileName);
+
+        try {
+            const absoluteDestPathDir = path.dirname(absoluteDestPath);
+
+            await fsPromises.access(absoluteSrcPath);
+            await fsPromises.access(absoluteDestPathDir);
+        } catch (error) {
+            return ERROR_MESSAGES.INVALID_INPUT;
+        }
+
+        try {
+            const copyFileProcess = new Promise((resolve, reject) => {
+                const sourceReadableStream = fs.createReadStream(absoluteSrcPath);
+                const destWritableStream = fs.createWriteStream(absoluteDestPath);
+
+                sourceReadableStream.on('error', (error) => reject(error));
+                destWritableStream.on('error', (error) => reject(error));
+
+                sourceReadableStream.pipe(destWritableStream);
+
+                destWritableStream.on('finish', () => resolve());
+            });
+
+            return await copyFileProcess;
+        } catch (error) {
+            return ERROR_MESSAGES.OPERATION_FAILED;
+        }
     }
 
     moveFile() {
