@@ -23,8 +23,7 @@ export class OsService {
     }
 
     getEOL() {
-        process.stdout.write('EOL: ')
-        return os.EOL;
+        return JSON.stringify(os.EOL);
     }
 
     getCPUs() {
