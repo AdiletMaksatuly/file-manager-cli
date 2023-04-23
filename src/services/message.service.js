@@ -1,3 +1,5 @@
+import {ERROR_MESSAGES} from "../consts/errors.const.js";
+
 class MessageService {
     username = '';
 
@@ -15,7 +17,7 @@ class MessageService {
     }
 
     getErrorMessage() {
-        return 'Invalid input';
+        return ERROR_MESSAGES.INVALID_INPUT;
     }
 }
 
