@@ -18,8 +18,7 @@ export class OsService {
             case CLI_OS_COMMANDS.ARCH:
                 return this.getArchitecture();
             default:
-                onErrorCb();
-                break;
+                return onErrorCb();
         }
     }
 
@@ -41,7 +40,7 @@ export class OsService {
     }
 
     getHomeDir() {
-        return 'getHomeDir';
+        return os.homedir();
     }
 
     getSysUser() {

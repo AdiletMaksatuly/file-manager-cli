@@ -149,7 +149,6 @@ class FileManager {
             case CLI_COMMANDS.EXIT:
                 return this.exitProcess();
             default:
-                console.log('default')
                 return this.getErrorMessage();
         }
     }
