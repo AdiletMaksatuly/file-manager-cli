@@ -28,7 +28,7 @@ class FileManager {
         }
 
         this.navigationService = new NavigationService(currentDirMethods);
-        this.fileService = new FileService();
+        this.fileService = new FileService(currentDirMethods);
         this.hashService = new HashService();
         this.osService = new OsService();
         this.compressionService = new CompressionService();
@@ -97,6 +97,7 @@ class FileManager {
 
     async processCommand(commandWithArgs) {
         const { command, args } = this.parseService.parseCommand(commandWithArgs);
+        const commandArgs = args.join(' ');
 
         switch (command) {
             case CLI_COMMANDS.UP:
@@ -104,11 +105,9 @@ class FileManager {
             case CLI_COMMANDS.LIST:
                 return this.navigationService.listFiles();
             case CLI_COMMANDS.CHANGE_DIR:
-                const pathToDest = args.join('');
-
-                return this.navigationService.changeDirectory(pathToDest);
+                return this.navigationService.changeDirectory(commandArgs);
             case CLI_COMMANDS.READ:
-                return this.fileService.readFile();
+                return this.fileService.readFile(commandArgs);
             case CLI_COMMANDS.CREATE:
                 return this.fileService.createFile();
             case CLI_COMMANDS.RENAME:
