@@ -36,12 +36,22 @@ export class CompressionService {
         }
 
         try {
-            const source = fs.createReadStream(absoluteSrcPath);
-            const target = fs.createWriteStream(absoluteDestPath);
+            const compressPromise = new Promise((resolve, reject) => {
+                const source = fs.createReadStream(absoluteSrcPath);
+                const target = fs.createWriteStream(absoluteDestPath);
 
-            const brotliCompress = zlib.createBrotliCompress();
+                const brotliCompress = zlib.createBrotliCompress();
 
-            source.pipe(brotliCompress).pipe(target);
+                source.pipe(brotliCompress).pipe(target);
+
+                source.on('error', () => reject());
+                brotliCompress.on('error', (error) => reject(error));
+                target.on('error', (error) => reject(error));
+
+                target.on('finish', () => resolve());
+            });
+
+            return await compressPromise;
         } catch (error) {
             return ERROR_MESSAGES.OPERATION_FAILED;
         }
