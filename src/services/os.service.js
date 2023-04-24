@@ -43,10 +43,10 @@ export class OsService {
     }
 
     getSysUser() {
-        return 'getSysUser';
+        return os.userInfo().username;
     }
 
     getArchitecture() {
-        return 'getArchitecture';
+        return os.arch();
     }
 }
