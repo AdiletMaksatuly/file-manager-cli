@@ -7,6 +7,7 @@ import {CompressionService} from "./services/compression.service.js";
 import {NavigationService} from "./services/navigation.service.js";
 import ParseService from "./services/parse.service.js";
 import CurrentDirectoryService from "./services/current-directory.service.js";
+import os from "os";
 
 class FileManager {
     parseService = new ParseService();
@@ -50,7 +51,7 @@ class FileManager {
                 let outputToPrint = output;
 
                 if (outputToPrint && Array.isArray(output) && typeof output[0] === 'string') {
-                    outputToPrint = output.join('\n');
+                    outputToPrint = output.join(os.EOL);
                 }
 
                 if (outputToPrint) {
@@ -94,7 +95,7 @@ class FileManager {
 
     print = (message) => {
         if (typeof message === 'string') {
-            process.stdout.write(message + '\n');
+            process.stdout.write(message + os.EOL);
             return;
         }
 
