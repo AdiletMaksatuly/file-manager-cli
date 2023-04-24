@@ -31,7 +31,7 @@ class FileManager {
         this.fileService = new FileService(currentDirMethods);
         this.hashService = new HashService(currentDirMethods);
         this.osService = new OsService();
-        this.compressionService = new CompressionService();
+        this.compressionService = new CompressionService(currentDirMethods);
 
         this.setListeners();
         this.printUserGreeting();
@@ -145,7 +145,9 @@ class FileManager {
 
                 return this.hashService.calculateHash(srcFilePath);
             case CLI_COMMANDS.COMPRESS:
-                return this.compressionService.compress();
+                const [fileToCompress, destDir] = args;
+
+                return this.compressionService.compress(fileToCompress, destDir);
             case CLI_COMMANDS.DECOMPRESS:
                 return this.compressionService.decompress();
             case CLI_COMMANDS.EXIT:
