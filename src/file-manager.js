@@ -149,7 +149,9 @@ class FileManager {
 
                 return this.compressionService.compress(fileToCompress, destDir);
             case CLI_COMMANDS.DECOMPRESS:
-                return this.compressionService.decompress();
+                const [fileToDecompress, destDirPath] = args;
+
+                return this.compressionService.decompress(fileToDecompress, destDirPath);
             case CLI_COMMANDS.EXIT:
                 return this.exitProcess();
             default:

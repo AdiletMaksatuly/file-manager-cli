@@ -57,7 +57,51 @@ export class CompressionService {
         }
     }
 
-    decompress() {
-        return 'decompress';
+    async decompress(srcPath, destPath) {
+        const currentDir = this.getCurrentDir();
+
+        const normalizedSrcPath = path.normalize(srcPath);
+        const absoluteSrcPath = path.resolve(currentDir, normalizedSrcPath);
+
+        const normalizedDestPath = path.normalize(destPath);
+        const absoluteDestPath = path.resolve(
+            currentDir,
+            normalizedDestPath,
+            path.basename(absoluteSrcPath).replace('.br', '')
+        );
+
+        try {
+            const absoluteDestDir = path.dirname(absoluteDestPath);
+
+            await fsPromises.access(absoluteSrcPath);
+            await fsPromises.access(absoluteDestDir);
+
+            const isFileCompressedWithBrotli = path.extname(absoluteSrcPath) === '.br';
+
+            if (!isFileCompressedWithBrotli) throw new Error('File is not compressed with brotli');
+        } catch (error) {
+            return ERROR_MESSAGES.INVALID_INPUT;
+        }
+
+        try {
+            const decompressPromise = new Promise((resolve, reject) => {
+                const source = fs.createReadStream(absoluteSrcPath);
+                const target = fs.createWriteStream(absoluteDestPath);
+
+                const brotliDecompress = zlib.createBrotliDecompress();
+
+                source.pipe(brotliDecompress).pipe(target);
+
+                source.on('error', () => reject());
+                brotliDecompress.on('error', (error) => reject(error));
+                target.on('error', (error) => reject(error));
+
+                target.on('finish', () => resolve());
+            });
+
+            return await decompressPromise;
+        } catch (error) {
+            return ERROR_MESSAGES.OPERATION_FAILED;
+        }
     }
 }
