@@ -4,8 +4,8 @@ class MessageService {
     username = '';
 
 
-    constructor(username = 'User') {
-        this.username = username;
+    constructor(username) {
+        this.username = username || 'User';
     }
 
     getGreetingMessage() {
